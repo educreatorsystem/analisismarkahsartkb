@@ -1,0 +1,11 @@
+SISTEM ANALISIS PEPERIKSAAN
+SEKOLAH AGAMA SERI TAMAN KLUANG BARAT
+
+1. Buka fail HTML dengan pelayar untuk melihat sistem. Muat naik fail HTML ke GitHub Pages atau embed URL laman yang diterbitkan pada Google Sites.
+2. URL CSV murid serta pentaksiran/subjek sudah dimasukkan. Pastikan kedua-dua CSV dikongsi secara terbitan awam dan lajur sesuai dengan struktur asal.
+3. URL Apps Script yang diberikan sudah dipautkan dalam HTML, namun backend yang telah dideploy belum disahkan keserasiannya.
+4. Jika backend lama gagal, gunakan kod .gs yang disertakan dalam projek Apps Script baharu yang dihubungkan kepada Sheet ID yang disediakan; deploy Web app dan gantikan APPS_SCRIPT_URL dalam HTML dengan URL deployment baru.
+5. Kod Apps Script alternatif menggunakan tab MARKAH_KAFA_STKB sahaja dan tidak memadam mana-mana tab lain. Mulakan kosong tidak bererti memadam data lama di Sheet asal.
+6. Pengiraan: A 85–100, B 70–84, C 55–69, D 40–54, E 0–39; lulus bermula 40.
+7. Kata laluan guru dalam HTML bersifat perlindungan paparan sahaja, bukan autentikasi selamat. Portal ibu bapa berdasarkan IC juga memerlukan kawalan akses di bahagian pelayan sebelum digunakan untuk data murid sebenar. Jangan terbitkan rekod sensitif tanpa kawalan akses.
+8. Uji pembacaan CSV, simpan markah, muat semula rekod, tab analisis, graf dan cetakan dalam pelayar/hosting sebenar sebelum digunakan.

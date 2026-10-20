@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Analisis Peperiksaan | SEKOLAH AGAMA SERI TAMAN KLUANG BARAT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .text-2xs { font-size: 0.68rem; }
+    .print-only { display: none; }
+
+    .school-logo { object-fit: contain; display: block; }
+    .vertical-chart-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.9rem; padding: 1rem; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); break-inside: avoid; }
+    .vertical-chart-title { font-size: 0.78rem; font-weight: 800; color: #334155; margin-bottom: 0.75rem; text-align: center; text-transform: uppercase; min-height: 2.1rem; display: flex; align-items: center; justify-content: center; }
+    .grade-chart-shell { display: grid; grid-template-columns: 42px 1fr; grid-template-rows: 188px 26px; column-gap: 0.55rem; row-gap: 0.25rem; }
+    .grade-chart-y-axis { grid-row: 1; grid-column: 1; height: 188px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding: 0 0.25rem 0.05rem 0; font-size: 0.68rem; font-weight: 700; color: #64748b; }
+    .grade-chart-plot { grid-row: 1; grid-column: 2; height: 188px; position: relative; display: flex; align-items: flex-end; justify-content: space-around; gap: 0.65rem; padding: 0.75rem 0.7rem 0; border-left: 2px solid #64748b; border-bottom: 2px solid #64748b; background: repeating-linear-gradient(to top, #ffffff 0, #ffffff 36px, #f1f5f9 37px); }
+    .grade-chart-x-axis { grid-row: 2; grid-column: 2; display: grid; grid-template-columns: repeat(5, 1fr); align-items: start; text-align: center; font-size: 0.73rem; font-weight: 900; color: #334155; }
+    .grade-chart-y-title { grid-row: 1; grid-column: 1; writing-mode: vertical-rl; transform: rotate(180deg); justify-self: start; align-self: center; margin-left: -0.25rem; font-size: 0.58rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.03em; text-transform: uppercase; }
+    .vertical-bar-wrap { height: 162px; min-width: 44px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.35rem; }
+    .vertical-bar-value { font-size: 0.72rem; font-weight: 900; color: #0f172a; line-height: 1; }
+    .vertical-bar { width: 34px; min-height: 2px; border-radius: 0.45rem 0.45rem 0 0; display: flex; align-items: flex-start; justify-content: center; transition: height 0.25s ease; box-shadow: inset 0 -10px 18px rgba(15, 23, 42, 0.08); }
+    .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .achievement-table th, .achievement-table td { border: 1px solid #cbd5e1; padding: 0.55rem 0.65rem; }
+    .slip-info-table th, .slip-info-table td { border: 1px solid #cbd5e1; padding: 0.65rem 0.75rem; vertical-align: top; }
+    .slip-info-label { display: block; font-size: 0.68rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem; }
+    .slip-info-value { display: block; font-size: 0.88rem; font-weight: 800; color: #0f172a; line-height: 1.25; }
+    .teacher-comment-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #10b981; border-radius: 0.75rem; padding: 0.85rem 1rem; }
+    .print-logo { object-fit: contain; }
+    @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+
+    @media print {
+      body { background: white !important; color: #0f172a !important; }
+      header, nav, footer, .no-print, #login-portal, #toast-notif { display: none !important; }
+      main { max-width: 100% !important; padding: 0 !important; }
+      .tab-panel { box-shadow: none !important; border: 0 !important; padding: 0 !important; }
+      .print-content { display: block !important; }
+      .print-only { display: block !important; }
+      .slip-page { page-break-after: always; break-after: page; }
+      table { border-collapse: collapse !important; width: 100% !important; font-size: 10px !important; }
+      th, td { border: 1px solid #94a3b8 !important; padding: 4px 5px !important; }
+      .slip-info-table th, .slip-info-table td { padding: 6px 8px !important; }
+      .slip-info-label { font-size: 8px !important; font-weight: 800 !important; color: #475569 !important; text-transform: uppercase !important; display: block !important; margin-bottom: 2px !important; }
+      .slip-info-value { font-size: 10px !important; font-weight: 800 !important; color: #0f172a !important; display: block !important; }
+      th { background: #f1f5f9 !important; color: #0f172a !important; }
+      .rounded-xl, .rounded-2xl, .rounded-lg { border-radius: 0 !important; }
+      .overflow-x-auto { overflow: visible !important; }
+      .vertical-chart-area { height: 160px !important; }
+      .school-logo, .print-logo { max-height: 70px !important; }
+    }
+
+    /* Islamic Modern: hijau zamrud, emas lembut dan putih */
+    :root { --islamic-green: #07543f; --islamic-gold: #c89a40; }
+    body { background: #f7faf7; }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.22; background-image: radial-gradient(circle at 20% 10%,#dfc180 0, transparent 24%), radial-gradient(circle at 90% 80%,#afd9c7 0,transparent 22%); }
+    header { background:linear-gradient(115deg,#043e30 0%,#087357 72%,#96732e 100%) !important; border-bottom:3px solid #d6b05e; }
+    header h1 { letter-spacing:.055em; }
+    header p { color:#f4dfaa !important; }
+    .tab-panel, #login-portal { border-top:3px solid #d2aa58 !important; }
+    .tab-btn:hover, button:hover { filter:brightness(1.04); }
+    button { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important; }
+    button:hover { transform:translateY(-1px); }
+    .school-logo { border-radius:50%; }
+    .teacher-comment-box { border-left-color:#c89a40; }
+    @media print {body::before{display:none;} button:hover{transform:none;}}
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+
+  <header class="bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 text-center sm:text-left">
+        <div class="bg-white p-2 rounded-full shadow-inner w-16 h-16 flex items-center justify-center shrink-0">
+          <img src="https://iili.io/nNx1KcG.md.jpg" alt="Logo Sekolah" class="school-logo w-12 h-12" />
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-wide">SISTEM ANALISIS PEPERIKSAAN</h1>
+          <p class="text-xs sm:text-sm text-emerald-100 font-medium">SEKOLAH AGAMA SERI TAMAN KLUANG BARAT</p>
+        </div>
+      </div>
+      <div id="user-status-indicator" class="hidden bg-emerald-900/40 border border-emerald-500/30 px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center gap-3">
+        <span id="user-role-badge" class="px-2 py-0.5 bg-emerald-500 text-white font-bold rounded text-2xs uppercase"></span>
+        <span id="user-display-name" class="font-semibold"></span>
+        <button onclick="logout()" class="ml-2 text-red-300 hover:text-red-100 font-bold underline transition">Log Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+    <section id="loading-panel" class="max-w-xl mx-auto my-8 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center animate-pulse">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Sedang memuatkan data...</h2>
+          <p class="text-sm text-slate-500 mt-1">Sistem sedang mengambil data murid, kelas, pentaksiran dan mata pelajaran daripada Google Sheet CSV.</p>
+          <p id="loading-error" class="hidden mt-3 text-sm text-red-700 bg-red-50 border-l-4 border-red-500 p-3 rounded"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="login-portal" class="hidden max-w-md mx-auto my-8 bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-100 transition-all duration-300">
+      <div class="flex justify-center mb-4">
+        <div class="w-24 h-24 rounded-full bg-white border-4 border-emerald-100 shadow-md flex items-center justify-center p-2">
+          <img src="https://iili.io/nNx1KcG.md.jpg" alt="Logo Sekolah" class="school-logo w-20 h-20" />
+        </div>
+      </div>
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Selamat Datang</h2>
+        <p class="text-sm text-slate-500 mt-1">Sila pilih jenis pengguna untuk akses sistem</p>
+      </div>
+
+      <div class="flex bg-slate-100 p-1.5 rounded-xl mb-6">
+        <button id="tab-login-guru" onclick="setLoginMode('guru')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-2">
+          <i class="fa-solid fa-chalkboard-user"></i> Guru
+        </button>
+        <button id="tab-login-ibubapa" onclick="setLoginMode('ibubapa')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-users"></i> Ibu Bapa
+        </button>
+      </div>
+
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div id="input-guru-container" class="space-y-2">
+          <label class="block text-sm font-semibold text-slate-700">Katalaluan Guru</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+            <input type="password" id="password-guru" class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none text-slate-800" placeholder="Masukkan katalaluan..." />
+          </div>
+        </div>
+
+        <div id="input-ibubapa-container" class="hidden space-y-2">
+          <label class="block text-sm font-semibold text-slate-700">Nombor Kad Pengenalan Anak</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-id-card"></i></span>
+            <input type="text" id="ic-anak" class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none text-slate-800" placeholder="Contoh: 151212101234" />
+          </div>
+          <p class="text-xs text-slate-400">Masukkan nombor IC anak tanpa sempang (-) atau ruang kosong.</p>
+        </div>
+
+        <div id="login-error-alert" class="hidden bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded text-sm flex items-center gap-2">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="login-error-text">Maklumat tidak sah. Sila cuba semula.</span>
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-2">
+          Log Masuk <i class="fa-solid fa-right-to-bracket"></i>
+        </button>
+      </form>
+    </section>
+
+    <section id="guru-dashboard" class="hidden space-y-6">
+      <nav class="bg-white p-2 rounded-xl shadow-md border border-slate-100 flex flex-wrap gap-1 no-print">
+        <button onclick="switchTab(1)" id="nav-tab-1" class="tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 bg-emerald-600 text-white">
+          <i class="fa-solid fa-edit"></i> 1. Input Markah
+        </button>
+        <button onclick="switchTab(2)" id="nav-tab-2" class="tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+          <i class="fa-solid fa-user-graduate"></i> 2. Analisis Individu
+        </button>
+        <button onclick="switchTab(3)" id="nav-tab-3" class="tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+          <i class="fa-solid fa-chart-bar"></i> 3. Analisis Subjek
+        </button>
+        <button onclick="switchTab(4)" id="nav-tab-4" class="tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+          <i class="fa-solid fa-list-ol"></i> 4. Kedudukan Murid
+        </button>
+        <button onclick="switchTab(5)" id="nav-tab-5" class="tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+          <i class="fa-solid fa-file-invoice"></i> 5. Pelaporan Slip
+        </button>
+      </nav>
+
+      <div id="panel-tab-1" class="tab-panel bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2 border-b pb-3 border-slate-100">
+            <span class="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg"><i class="fa-solid fa-edit"></i></span>
+            Merekod Markah Peperiksaan Murid
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Kelas</label>
+            <select id="t1-select-kelas" onchange="updateNamaMuridDropdown(); renderInputMarkahTable();" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Nama Murid</label>
+            <select id="t1-select-nama" onchange="renderInputMarkahTable()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Pentaksiran</label>
+            <select id="t1-select-pentaksiran" onchange="updateSubjekDropdown('t1-select-pentaksiran','t1-select-subjek'); renderInputMarkahTable();" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Mata Pelajaran</label>
+            <select id="t1-select-subjek" onchange="renderInputMarkahTable()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-lg text-xs sm:text-sm text-blue-800 flex items-start gap-3 no-print">
+          <i class="fa-solid fa-circle-info mt-0.5 shrink-0 text-blue-600"></i>
+          <div><span class="font-semibold">Tip:</span> Pilih kelas, nama murid, pentaksiran dan subjek. Gred dan tafsiran dijana automatik. Guna <strong>TD</strong> untuk Tidak Daftar dan <strong>TH</strong> untuk Tidak Hadir.</div>
+        </div>
+
+
+        <div class="no-print rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-emerald-950"><strong>Penetapan Gred:</strong> A (85–100) Cemerlang · B (70–84) Sangat Baik · C (55–69) Baik · D (40–54) Sederhana · E (0–39) Gagal. <strong>Lulus: 40 ke atas.</strong></div>
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100 text-slate-700 font-semibold uppercase text-xs">
+              <tr>
+                <th class="py-3 px-4 text-center w-14">Bil</th>
+                <th class="py-3 px-4 min-w-[220px]">Nama Murid</th>
+                <th class="py-3 px-4 text-center w-64">Markah / Status</th>
+                <th class="py-3 px-4 text-center w-28">Gred</th>
+                <th class="py-3 px-4 min-w-[160px]">Tafsiran</th>
+              </tr>
+            </thead>
+            <tbody id="t1-table-body" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-between gap-3 pt-4 border-t border-slate-100 no-print">
+          <p class="text-xs text-slate-500">Data markah disimpan dalam storan pelayar. Untuk simpan terus ke Google Sheet, sambungkan Apps Script pada bahagian konfigurasi.</p>
+          <button onclick="saveMarkah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-save"></i> SIMPAN MARKAH
+          </button>
+        </div>
+      </div>
+
+      <div id="panel-tab-2" class="tab-panel hidden bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center justify-between border-b pb-3 border-slate-100">
+            <span class="flex items-center gap-2"><span class="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg"><i class="fa-solid fa-user-graduate"></i></span> Analisis Pencapaian Individu Murid</span>
+            <button onclick="printContent()" class="no-print bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 px-4 rounded-lg shadow flex items-center gap-1.5 transition"><i class="fa-solid fa-print"></i> Cetak Analisis</button>
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Kelas</label>
+            <select id="t2-select-kelas" onchange="renderAnalisisIndividu()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Pentaksiran</label>
+            <select id="t2-select-pentaksiran" onchange="renderAnalisisIndividu()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+        </div>
+
+        <div class="print-content space-y-6">
+          <div class="print-only text-center pb-4 border-b-2 border-slate-800 mb-4">
+            <h1 class="text-xl font-bold text-slate-900">SEKOLAH AGAMA SERI TAMAN KLUANG BARAT</h1>
+            <h2 class="text-base font-semibold text-slate-800">ANALISIS PENCAPAIAN INDIVIDU MURID</h2>
+            <p class="text-xs text-slate-600" id="t2-print-meta"></p>
+          </div>
+          <div class="space-y-3">
+            <h4 class="text-md font-bold text-emerald-800 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> Keputusan Keseluruhan Mengikut Ranking Purata</h4>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-xs sm:text-sm text-center">
+                <thead id="t2-table-head" class="bg-slate-100 text-slate-700 font-semibold uppercase"></thead>
+                <tbody id="t2-table-body" class="divide-y divide-slate-200"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-md font-bold text-emerald-800 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> Murid Terbaik Mengikut Mata Pelajaran</h4>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-xs sm:text-sm text-left">
+                <thead class="bg-emerald-50 text-emerald-800 font-semibold uppercase">
+                  <tr>
+                    <th class="py-2.5 px-3 text-center w-14">Bil</th>
+                    <th class="py-2.5 px-3">Mata Pelajaran</th>
+                    <th class="py-2.5 px-3">Nama Murid Cemerlang</th>
+                    <th class="py-2.5 px-3 text-center w-24">Markah</th>
+                    <th class="py-2.5 px-3 text-center w-20">Gred</th>
+                    <th class="py-2.5 px-3">Pencapaian</th>
+                  </tr>
+                </thead>
+                <tbody id="t2-terbaik-body" class="divide-y divide-slate-200"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-tab-3" class="tab-panel hidden bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center justify-between border-b pb-3 border-slate-100">
+            <span class="flex items-center gap-2"><span class="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg"><i class="fa-solid fa-chart-bar"></i></span> Analisis Prestasi Mata Pelajaran</span>
+            <button onclick="printContent()" class="no-print bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 px-4 rounded-lg shadow flex items-center gap-1.5 transition"><i class="fa-solid fa-print"></i> Cetak Analisis</button>
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Pentaksiran</label>
+            <select id="t3-select-pentaksiran" onchange="renderAnalisisSubjek()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Aliran</label>
+            <select id="t3-select-aliran" onchange="renderAnalisisSubjek()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+        </div>
+        <div class="print-content space-y-6">
+          <div class="print-only text-center pb-4 border-b-2 border-slate-800 mb-4">
+            <h1 class="text-xl font-bold text-slate-900">SEKOLAH AGAMA SERI TAMAN KLUANG BARAT</h1>
+            <h2 class="text-base font-semibold text-slate-800">LAPORAN PRESTASI MATA PELAJARAN</h2>
+            <p class="text-xs text-slate-600" id="t3-print-meta"></p>
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="bg-slate-100 text-slate-700 font-semibold text-center">
+                <tr>
+                  <th rowspan="2" class="py-3 px-2 border border-slate-200">Bil</th>
+                  <th rowspan="2" class="py-3 px-3 text-left border border-slate-200 min-w-[150px]">Mata Pelajaran</th>
+                  <th colspan="3" class="py-2 px-2 border border-slate-200">Bilangan Calon</th>
+                  <th colspan="2" class="py-2 px-2 border border-slate-200 bg-emerald-50 text-emerald-800">A</th>
+                  <th colspan="2" class="py-2 px-2 border border-slate-200 bg-blue-50 text-blue-800">B</th>
+                  <th colspan="2" class="py-2 px-2 border border-slate-200 bg-yellow-50 text-yellow-800">C</th>
+                  <th colspan="2" class="py-2 px-2 border border-slate-200 bg-orange-50 text-orange-800">D</th>
+                  <th colspan="2" class="py-2 px-2 border border-slate-200 bg-rose-50 text-rose-800">E</th>
+                  <th colspan="2" class="py-2 px-2 border border-slate-200 bg-indigo-50 text-indigo-800">Keputusan</th>
+                </tr>
+                <tr class="text-xs bg-slate-50">
+                  <th class="py-2 px-1 border border-slate-200">Daftar</th>
+                  <th class="py-2 px-1 border border-slate-200">Ambil</th>
+                  <th class="py-2 px-1 border border-slate-200">TH</th>
+                  <th class="py-2 px-1 border border-slate-200">Bil</th><th class="py-2 px-1 border border-slate-200">%</th>
+                  <th class="py-2 px-1 border border-slate-200">Bil</th><th class="py-2 px-1 border border-slate-200">%</th>
+                  <th class="py-2 px-1 border border-slate-200">Bil</th><th class="py-2 px-1 border border-slate-200">%</th>
+                  <th class="py-2 px-1 border border-slate-200">Bil</th><th class="py-2 px-1 border border-slate-200">%</th>
+                  <th class="py-2 px-1 border border-slate-200">Lulus</th>
+                  <th class="py-2 px-1 border border-slate-200">Gagal</th>
+                </tr>
+              </thead>
+              <tbody id="t3-table-body" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4 no-print">
+            <h4 class="font-bold text-slate-800 text-sm sm:text-base text-center uppercase tracking-wide">Carta Ringkas Taburan Gred</h4>
+            <div id="t3-chart-container" class="chart-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-tab-4" class="tab-panel hidden bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center justify-between border-b pb-3 border-slate-100">
+            <span class="flex items-center gap-2"><span class="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg"><i class="fa-solid fa-list-ol"></i></span> Kedudukan Ranking Murid Keseluruhan</span>
+            <button onclick="printContent()" class="no-print bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 px-4 rounded-lg shadow flex items-center gap-1.5 transition"><i class="fa-solid fa-print"></i> Cetak Laporan</button>
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+          <div class="space-y-1.5"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Pentaksiran</label><select id="t4-select-pentaksiran" onchange="renderKedudukanMurid()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select></div>
+          <div class="space-y-1.5"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Aliran</label><select id="t4-select-aliran" onchange="renderKedudukanMurid()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select></div>
+        </div>
+        <div class="print-content space-y-6">
+          <div class="print-only text-center pb-4 border-b-2 border-slate-800 mb-4"><h1 class="text-xl font-bold text-slate-900">SEKOLAH AGAMA SERI TAMAN KLUANG BARAT</h1><h2 class="text-base font-semibold text-slate-800">SENARAI KEDUDUKAN MURID MENGIKUT ALIRAN</h2><p class="text-xs text-slate-600" id="t4-print-meta"></p></div>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="bg-slate-100 text-slate-700 font-semibold uppercase"><tr><th class="py-3 px-4 text-center w-24">Kedudukan</th><th class="py-3 px-4">Nama Murid</th><th class="py-3 px-4 text-center w-36">Kelas</th><th class="py-3 px-4 text-center w-40">Jumlah Markah</th><th class="py-3 px-4 text-center w-40">Purata (%)</th><th class="py-3 px-4 text-center w-32">Gred Purata</th></tr></thead>
+              <tbody id="t4-table-body" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-tab-5" class="tab-panel hidden bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center justify-between border-b pb-3 border-slate-100">
+            <span class="flex items-center gap-2"><span class="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg"><i class="fa-solid fa-file-invoice"></i></span> Pelaporan Slip Pencapaian Murid</span>
+            <button onclick="printContent()" class="no-print bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 px-4 rounded-lg shadow flex items-center gap-1.5 transition"><i class="fa-solid fa-print"></i> Cetak Semua Slip Kelas Ini</button>
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+          <div class="space-y-1.5"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Kelas</label><select id="t5-select-kelas" onchange="renderPelaporanSlip()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select></div>
+          <div class="space-y-1.5"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Pentaksiran</label><select id="t5-select-pentaksiran" onchange="renderPelaporanSlip()" class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"></select></div>
+        </div>
+        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded text-xs text-emerald-800 flex items-center gap-2 no-print"><i class="fa-solid fa-circle-check"></i><span>Sistem akan memaparkan slip pencapaian berasingan bagi setiap murid dalam kelas ini. Sedia untuk dicetak.</span></div>
+        <div class="print-content" id="t5-slips-container"></div>
+      </div>
+    </section>
+
+    <section id="ibubapa-portal" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span class="p-1.5 bg-blue-100 text-blue-800 rounded-lg"><i class="fa-solid fa-users"></i></span> Portal Ibu Bapa / Penjaga</h3>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Paparan keputusan peperiksaan anak berdasarkan nombor kad pengenalan.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2 items-center">
+          <select id="parent-select-pentaksiran" onchange="renderParentSlip()" class="bg-slate-50 border border-slate-300 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium"></select>
+          <button onclick="printContent()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 px-5 rounded-xl shadow flex items-center gap-1.5 transition"><i class="fa-solid fa-print"></i> Cetak Slip</button>
+          <button onclick="logout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs sm:text-sm font-semibold py-2 px-5 rounded-xl transition">Log Keluar</button>
+        </div>
+      </div>
+      <div class="print-content" id="parent-slip-container"></div>
+    </section>
+  </main>
+
+  <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-12 text-xs sm:text-sm">
+    <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+      <p class="font-semibold text-slate-300">&copy; 2026 SEKOLAH AGAMA SERI TAMAN KLUANG BARAT. Semua Hak Cipta Terpelihara.</p>
+      <p class="text-slate-500">Sistem Analisis Peperiksaan • Data dropdown daripada Google Sheet CSV</p>
+    </div>
+  </footer>
+
+  <div id="toast-notif" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white py-3 px-6 rounded-xl shadow-2xl flex items-center gap-3">
+    <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fa-solid fa-circle-check"></i></span>
+    <span id="toast-message" class="text-sm font-medium">Melakukan operasi...</span>
+  </div>
+
+  <script>
+    // ==========================================
+    // KONFIGURASI UTAMA
+    // ==========================================
+    const GURU_PASSWORD = 'gurukafa1234';
+    const LOGO_URL = 'https://iili.io/nNx1KcG.md.jpg';
+
+    // Data murid: susunan column CSV = kelas, nama murid, no kad pengenalan
+    const STUDENT_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSpKDRklADL6VHrA2BJaKJ2PxhUg_TWkUOa_IrlK0rVt7FWuyZ5vR_XK8GGRyyo0W76Ox2wz-NVRxZ3/pub?gid=0&single=true&output=csv';
+
+    // Data pentaksiran & subjek: susunan column CSV = pentaksiran, subjek
+    const ASSESSMENT_SUBJECT_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSpKDRklADL6VHrA2BJaKJ2PxhUg_TWkUOa_IrlK0rVt7FWuyZ5vR_XK8GGRyyo0W76Ox2wz-NVRxZ3/pub?gid=1104501296&single=true&output=csv';
+
+    // OPTIONAL: Masukkan URL Apps Script Web App jika mahu simpan markah terus ke Google Sheet.
+    // Jika dibiarkan kosong, sistem akan guna localStorage pada browser.
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7OQZoohSpQn0QHT2RsFIiNGDiFYOyzClKLRRVlih3aTLo4gT1jYWijfxrmxH2RuQGaw/exec';
+
+    const LOCAL_STORAGE_KEY = 'SAPK_MARKAH_SERI_TAMAN_KLUANG_BARAT_V1';
+
+    let STUDENTS = [];
+    let ASSESSMENT_SUBJECT_ROWS = [];
+    let KELAS_LIST = [];
+    let PENTAKSIRAN_LIST = [];
+    let SUBJEK_LIST = [];
+    let MARKAH_DATABASE = {};
+
+    let CURRENT_LOGIN_MODE = 'guru';
+    let CURRENT_USER = null;
+    let CURRENT_ACTIVE_TAB = 1;
+    let TOAST_TIMER = null;
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    window.onload = async function() {
+      setLoginMode('guru');
+      try {
+        await loadExternalData();
+        await loadMarkahData();
+        populateAllDropdowns();
+        document.getElementById('loading-panel').classList.add('hidden');
+        document.getElementById('login-portal').classList.remove('hidden');
+        showToast('Data berjaya dimuatkan.', 'success');
+      } catch (error) {
+        console.error(error);
+        const errorBox = document.getElementById('loading-error');
+        errorBox.classList.remove('hidden');
+        errorBox.innerText = 'Ralat memuatkan data CSV. Sila pastikan Google Sheet telah diterbitkan sebagai CSV dan pautan boleh diakses. Butiran: ' + error.message;
+      }
+    };
+
+    async function loadExternalData() {
+      const [studentCsv, assessmentCsv] = await Promise.all([
+        fetchCSV(STUDENT_CSV_URL),
+        fetchCSV(ASSESSMENT_SUBJECT_CSV_URL)
+      ]);
+
+      const studentRows = parseCSV(studentCsv);
+      const assessmentRows = parseCSV(assessmentCsv);
+
+      STUDENTS = buildStudents(studentRows);
+      ASSESSMENT_SUBJECT_ROWS = buildAssessmentSubjectRows(assessmentRows);
+
+      if (!STUDENTS.length) throw new Error('Tiada data murid ditemui dalam CSV murid.');
+      if (!ASSESSMENT_SUBJECT_ROWS.length) throw new Error('Tiada data pentaksiran/subjek ditemui dalam CSV.');
+
+      KELAS_LIST = unique(STUDENTS.map(s => s.kelas)).sort(sortKelas);
+      PENTAKSIRAN_LIST = unique(ASSESSMENT_SUBJECT_ROWS.map(r => r.pentaksiran));
+      SUBJEK_LIST = unique(ASSESSMENT_SUBJECT_ROWS.map(r => r.subjek)).sort((a, b) => a.localeCompare(b, 'ms'));
+    }
+
+    async function fetchCSV(url) {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error('Gagal fetch CSV: ' + response.status);
+      return await response.text();
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"' && insideQuotes && nextChar === '"') {
+          value += '"';
+          i++;
+        } else if (char === '"') {
+          insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+          row.push(value.trim());
+          value = '';
+        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+          if (char === '\r' && nextChar === '\n') i++;
+          row.push(value.trim());
+          if (row.some(cell => cell !== '')) rows.push(row);
+          row = [];
+          value = '';
+        } else {
+          value += char;
+        }
+      }
+      row.push(value.trim());
+      if (row.some(cell => cell !== '')) rows.push(row);
+      return rows;
+    }
+
+    function buildStudents(rows) {
+      if (!rows.length) return [];
+      const hasHeader = isHeaderLike(rows[0], ['kelas', 'nama', 'kad', 'pengenalan', 'ic']);
+      const dataRows = hasHeader ? rows.slice(1) : rows;
+      const seen = new Set();
+
+      return dataRows.map((r, index) => {
+        const kelas = cleanText(r[0]);
+        const nama = cleanText(r[1]).toUpperCase();
+        const ic = normalizeIC(r[2]);
+        const id = ic || `MURID_${index + 1}`;
+        return { id, kelas, nama, ic };
+      }).filter(s => s.kelas && s.nama && s.ic).filter(s => {
+        const key = s.ic;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function buildAssessmentSubjectRows(rows) {
+      if (!rows.length) return [];
+
+      // DIUBAHSUAI:
+      // Kod lama hanya membaca r[1] sebagai subjek.
+      // Kod baharu mencari kolum bernama "subjek" / "mata pelajaran"
+      // secara automatik, kemudian mengambil SEMUA subjek unik daripada kolum tersebut.
+      const hasHeader = isHeaderLike(rows[0], ['pentaksiran', 'subjek', 'mata', 'pelajaran']);
+      const header = hasHeader ? rows[0].map(normalizeHeader) : [];
+      const dataRows = hasHeader ? rows.slice(1) : rows;
+
+      let pentaksiranIndex = 0;
+      let subjekIndexes = [1];
+
+      if (hasHeader) {
+        const detectedPentaksiranIndex = header.findIndex(h =>
+          h.includes('pentaksiran') || h.includes('peperiksaan') || h.includes('penilaian') || h.includes('ujian')
+        );
+        if (detectedPentaksiranIndex >= 0) pentaksiranIndex = detectedPentaksiranIndex;
+
+        const detectedSubjekIndexes = header
+          .map((h, index) => ({ h, index }))
+          .filter(item =>
+            item.index !== pentaksiranIndex &&
+            (item.h === 'subjek' || item.h.includes('subjek') || item.h.includes('mata pelajaran') || item.h.includes('matapelajaran'))
+          )
+          .map(item => item.index);
+
+        // Jika header subjek tidak dikesan, sistem akan cuba baca semua kolum selain pentaksiran.
+        // Ini mengelakkan dropdown terhad kepada 1 atau 2 subjek sahaja apabila struktur CSV berubah.
+        if (detectedSubjekIndexes.length) {
+          subjekIndexes = detectedSubjekIndexes;
+        } else {
+          subjekIndexes = header.map((_, index) => index).filter(index => index !== pentaksiranIndex);
+          if (!subjekIndexes.length) subjekIndexes = [1];
+        }
+      }
+
+      const seen = new Set();
+      const result = [];
+
+      dataRows.forEach(r => {
+        const pentaksiran = cleanText(r[pentaksiranIndex] || r[0] || 'UMUM');
+
+        subjekIndexes.forEach(subjekIndex => {
+          const rawSubjek = cleanText(r[subjekIndex]);
+          const subjekListDalamCell = splitSubjectCell(rawSubjek);
+
+          subjekListDalamCell.forEach(item => {
+            const subjek = cleanText(item).toUpperCase();
+            if (!subjek) return;
+
+            const key = `${pentaksiran}||${subjek}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+            result.push({ pentaksiran, subjek });
+          });
+        });
+      });
+
+      return result;
+    }
+
+    function normalizeHeader(value) {
+      return cleanText(value)
+        .toLowerCase()
+        .replace(/_/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function splitSubjectCell(value) {
+      const text = cleanText(value);
+      if (!text) return [];
+
+      // Sokong keadaan satu cell mengandungi beberapa subjek yang dipisahkan baris baharu,
+      // titik koma, pipe atau koma. Slash tidak dipecahkan kerana subjek seperti AL-QURAN / TAJWID.
+      return text
+        .replace(/\s*(?:\r?\n|;|\|)\s*/g, '|||')
+        .split('|||')
+        .flatMap(part => part.split(/,(?=\s*[^\s])/g))
+        .map(item => cleanText(item))
+        .filter(Boolean);
+    }
+
+    function isHeaderLike(row, keywords) {
+      const joined = row.join(' ').toLowerCase();
+      return keywords.some(k => joined.includes(k));
+    }
+
+    function cleanText(value) {
+      return String(value || '').replace(/\uFEFF/g, '').trim().replace(/\s+/g, ' ');
+    }
+
+    function normalizeIC(ic) {
+      return String(ic || '').replace(/[^0-9]/g, '');
+    }
+
+    function unique(array) {
+      return [...new Set(array.filter(Boolean))];
+    }
+
+    function sortKelas(a, b) {
+      const na = parseInt(String(a).match(/\d+/)?.[0] || '999', 10);
+      const nb = parseInt(String(b).match(/\d+/)?.[0] || '999', 10);
+      if (na !== nb) return na - nb;
+      return a.localeCompare(b);
+    }
+
+    function getAliranFromKelas(kelas) {
+      const match = String(kelas || '').match(/\d+/);
+      return match ? match[0] : '';
+    }
+
+    function getAliranList() {
+      const aliran = unique(KELAS_LIST.map(k => getAliranFromKelas(k))).filter(Boolean).sort((a, b) => Number(a) - Number(b));
+      return aliran;
+    }
+
+    function getAllSubjectsFromColumnSubjek() {
+      // Senarai ini datang terus daripada semua nilai unik dalam kolum "subjek" CSV pentaksiran/subjek.
+      return unique(SUBJEK_LIST).sort((a, b) => a.localeCompare(b, 'ms'));
+    }
+
+    function getSubjectsForPentaksiran(pentaksiran) {
+      // DIUBAHSUAI:
+      // Dropdown subjek tidak lagi ditapis mengikut pentaksiran.
+      // Semua subjek yang wujud dalam kolum "subjek" CSV akan dipaparkan.
+      return getAllSubjectsFromColumnSubjek();
+    }
+
+    function shortSubjekName(subjek) {
+      return String(subjek || '')
+        .replace(/AL-QURAN\s*\/\s*TAJWID/gi, 'AL-QURAN')
+        .replace(/LUGHATUL QURAN\s*\(BAHASA ARAB\)/gi, 'BAHASA ARAB')
+        .replace(/ADAB\s*\(AKHLAK ISLAMIYAH\)/gi, 'ADAB')
+        .replace(/JAWI DAN IMLAK/gi, 'JAWI')
+        .trim();
+    }
+
+    // ==========================================
+    // LOCAL STORAGE MARKAH
+    // ==========================================
+    async function loadMarkahData() {
+      if (!APPS_SCRIPT_URL) {
+        loadMarkahFromLocalStorage();
+        return;
+      }
+
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=getMarkah&v=${Date.now()}`;
+        const response = await fetch(url, { method: 'GET', cache: 'no-store', redirect: 'follow' });
+        const result = await response.json();
+        if (result.status !== 'success') throw new Error(result.message || 'Gagal mendapatkan data markah.');
+        MARKAH_DATABASE = normalizeMarkahDatabase(result.data || {});
+        persistMarkahToLocalStorage();
+      } catch (error) {
+        console.error('Gagal GET markah daripada Apps Script. Sistem guna cache localStorage.', error);
+        loadMarkahFromLocalStorage();
+        showToast('Gagal memuatkan markah online. Sistem guna data cache pelayar.', 'error');
+      }
+    }
+
+    function loadMarkahFromLocalStorage() {
+      try {
+        MARKAH_DATABASE = normalizeMarkahDatabase(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}'));
+      } catch (error) {
+        MARKAH_DATABASE = {};
+      }
+    }
+
+    function persistMarkahToLocalStorage() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(MARKAH_DATABASE));
+    }
+
+    async function postToAppsScript(payload) {
+      if (!APPS_SCRIPT_URL) return { status: 'offline' };
+
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        body: JSON.stringify(payload)
+      });
+
+      const text = await response.text();
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (error) {
+        throw new Error('Respon Apps Script bukan JSON yang sah: ' + text.slice(0, 120));
+      }
+
+      if (result.status !== 'success') {
+        throw new Error(result.message || 'Gagal menghantar data ke Apps Script.');
+      }
+
+      return result;
+    }
+
+    function getRecordKey(studentId, pentaksiran, subjek) {
+      return `${studentId}||${pentaksiran}||${subjek}`;
+    }
+
+    // Menyeragamkan data markah lama yang mungkin diterima sebagai array atau objek.
+    // Ini penting supaya rekod lama masih boleh dibaca dan rekod baharu boleh disimpan
+    // menggunakan recordKey yang konsisten.
+    function normalizeMarkahDatabase(data) {
+      const normalized = {};
+      const entries = Array.isArray(data)
+        ? data.map((record, index) => [`LEGACY_${index}`, record])
+        : Object.entries(data && typeof data === 'object' ? data : {});
+
+      entries.forEach(([databaseKey, rawRecord], index) => {
+        if (!rawRecord || typeof rawRecord !== 'object') return;
+        const record = normalizeMarkahRecord(rawRecord);
+        if (!record) return;
+
+        const keyParts = String(databaseKey || '').split('||');
+        const studentId = record.studentId || record.ic || keyParts[0] || '';
+        const pentaksiran = record.pentaksiran || keyParts[1] || '';
+        const subjek = record.subjek || keyParts.slice(2).join('||') || '';
+        const recordKey = record.recordKey || (
+          studentId && pentaksiran && subjek
+            ? getRecordKey(studentId, pentaksiran, subjek)
+            : `LEGACY_${index}`
+        );
+
+        record.recordKey = recordKey;
+        normalized[recordKey] = record;
+      });
+
+      return normalized;
+    }
+
+    function getRecordField(record, aliases) {
+      if (!record || typeof record !== 'object') return '';
+
+      for (const alias of aliases) {
+        if (record[alias] !== undefined && record[alias] !== null) return record[alias];
+      }
+
+      const aliasKeys = aliases.map(alias => normalizeLookupText(alias));
+      for (const [key, value] of Object.entries(record)) {
+        if (aliasKeys.includes(normalizeLookupText(key)) && value !== undefined && value !== null) {
+          return value;
+        }
+      }
+      return '';
+    }
+
+    function normalizeLookupText(value) {
+      return String(value ?? '')
+        .normalize('NFKC')
+        .replace(/\uFEFF/g, '')
+        .replace(/\u00A0/g, ' ')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toUpperCase();
+    }
+
+    function normalizeComparisonKey(value) {
+      return normalizeLookupText(value).replace(/[^A-Z0-9]/g, '');
+    }
+
+    function normalizeSubjectKey(value) {
+      // shortSubjekName menyatukan nama lama dan nama penuh bagi subjek yang sama.
+      return normalizeComparisonKey(shortSubjekName(normalizeLookupText(value)));
+    }
+
+    function normalizeMarkahValue(value) {
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'number') return Number.isFinite(value) ? value : '';
+
+      const text = normalizeLookupText(value);
+      if (!text) return '';
+      if (text === 'TD' || text.includes('TIDAK DAFTAR')) return 'TD';
+      if (text === 'TH' || text.includes('TIDAK HADIR')) return 'TH';
+
+      // Sokong data seperti 85,5 / 85% / "85 markah" daripada rekod lama.
+      const numericMatch = text.replace(',', '.').match(/-?\d+(?:\.\d+)?/);
+      if (!numericMatch) return '';
+      const numericValue = Number(numericMatch[0]);
+      return Number.isFinite(numericValue) ? numericValue : '';
+    }
+
+    function normalizeIdentity(value) {
+      const raw = String(value ?? '').trim();
+      if (!raw) return '';
+
+      // Google Sheet kadangkala memulangkan nombor IC dalam notasi saintifik.
+      if (/^\d+(?:\.\d+)?e[+-]?\d+$/i.test(raw)) {
+        const converted = Number(raw);
+        if (Number.isFinite(converted)) return converted.toFixed(0);
+      }
+      return normalizeIC(raw);
+    }
+
+    function identitiesMatch(a, b) {
+      const first = normalizeIdentity(a);
+      const second = normalizeIdentity(b);
+      if (!first || !second) return false;
+      if (first === second) return true;
+      return first.replace(/^0+/, '') === second.replace(/^0+/, '');
+    }
+
+    function normalizeMarkahRecord(record) {
+      if (!record || typeof record !== 'object') return null;
+
+      record.studentId = getRecordField(record, ['studentId', 'student_id', 'idMurid', 'id murid']) || record.studentId || '';
+      record.ic = normalizeIdentity(getRecordField(record, ['ic', 'noKadPengenalan', 'no kad pengenalan', 'nokp', 'no kp'])) || normalizeIdentity(record.ic);
+      record.nama = cleanText(getRecordField(record, ['nama', 'namaMurid', 'nama murid']) || record.nama).toUpperCase();
+      record.kelas = cleanText(getRecordField(record, ['kelas', 'namaKelas', 'nama kelas']) || record.kelas);
+      record.pentaksiran = cleanText(getRecordField(record, ['pentaksiran', 'peperiksaan', 'penilaian', 'ujian']) || record.pentaksiran);
+      record.subjek = cleanText(getRecordField(record, ['subjek', 'mataPelajaran', 'mata pelajaran', 'matapelajaran']) || record.subjek).toUpperCase();
+      record.markah = normalizeMarkahValue(getRecordField(record, ['markah', 'score', 'marks', 'skor']));
+
+      // Pastikan rekod lama daripada Google Sheet / localStorage turut ikut skala gred terkini:
+      // A:85-100, B:70-84, C:55-69, D:40-54, E:0-39.
+      const calculated = calculateGredAndTafsiran(record.markah);
+      record.gred = calculated.gred;
+      record.tafsiran = calculated.tafsiran;
+
+      return record;
+    }
+
+    function getRecord(student, pentaksiran, subjek) {
+      const canonicalKey = getRecordKey(student.id, pentaksiran, subjek);
+      const exactRecord = MARKAH_DATABASE[canonicalKey] || null;
+      if (exactRecord) return normalizeMarkahRecord(exactRecord);
+
+      const targetPentaksiran = normalizeComparisonKey(pentaksiran);
+      const targetSubjek = normalizeSubjectKey(subjek);
+      const targetNama = normalizeLookupText(student.nama);
+      const targetKelas = normalizeLookupText(student.kelas);
+      let bestMatch = null;
+      let bestTimestamp = -1;
+
+      // Fallback untuk rekod lama: padankan melalui IC/ID atau nama+kelas,
+      // dan abaikan perbezaan huruf besar, ruang, simbol serta variasi nama subjek.
+      Object.entries(MARKAH_DATABASE).forEach(([databaseKey, rawRecord]) => {
+        const record = normalizeMarkahRecord(rawRecord);
+        if (!record) return;
+
+        const keyParts = String(databaseKey || '').split('||');
+        const recordStudentId = record.studentId || record.ic || keyParts[0] || '';
+        const recordPentaksiran = record.pentaksiran || keyParts[1] || '';
+        const recordSubjek = record.subjek || keyParts.slice(2).join('||') || '';
+
+        const studentMatched =
+          identitiesMatch(recordStudentId, student.id) ||
+          identitiesMatch(record.ic, student.ic) ||
+          (
+            normalizeLookupText(record.nama) === targetNama &&
+            normalizeLookupText(record.kelas) === targetKelas
+          );
+
+        if (!studentMatched) return;
+        if (normalizeComparisonKey(recordPentaksiran) !== targetPentaksiran) return;
+        if (normalizeSubjectKey(recordSubjek) !== targetSubjek) return;
+
+        const timestamp = Date.parse(record.timestamp || '') || 0;
+        if (!bestMatch || timestamp >= bestTimestamp) {
+          bestMatch = record;
+          bestTimestamp = timestamp;
+        }
+      });
+
+      if (bestMatch) {
+        // Migrasi sementara kepada kunci semasa supaya carian seterusnya lebih pantas.
+        bestMatch.studentId = student.id;
+        bestMatch.ic = student.ic;
+        bestMatch.nama = student.nama;
+        bestMatch.kelas = student.kelas;
+        bestMatch.pentaksiran = pentaksiran;
+        bestMatch.subjek = subjek;
+        bestMatch.recordKey = canonicalKey;
+        MARKAH_DATABASE[canonicalKey] = bestMatch;
+      }
+
+      return bestMatch;
+    }
+
+    function setRecord(student, pentaksiran, subjek, markahValue) {
+      const key = getRecordKey(student.id, pentaksiran, subjek);
+      const calculated = calculateGredAndTafsiran(markahValue);
+      MARKAH_DATABASE[key] = {
+        recordKey: key,
+        studentId: student.id,
+        ic: student.ic,
+        nama: student.nama,
+        kelas: student.kelas,
+        pentaksiran,
+        subjek,
+        markah: markahValue,
+        gred: calculated.gred,
+        tafsiran: calculated.tafsiran,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    function deleteRecord(student, pentaksiran, subjek) {
+      delete MARKAH_DATABASE[getRecordKey(student.id, pentaksiran, subjek)];
+    }
+
+    // ==========================================
+    // DROPDOWN
+    // ==========================================
+    function populateAllDropdowns() {
+      fillSelectOptions('t1-select-kelas', KELAS_LIST);
+      fillSelectOptions('t1-select-pentaksiran', PENTAKSIRAN_LIST);
+      updateSubjekDropdown('t1-select-pentaksiran', 't1-select-subjek');
+      updateNamaMuridDropdown();
+
+      fillSelectOptions('t2-select-kelas', KELAS_LIST);
+      fillSelectOptions('t2-select-pentaksiran', PENTAKSIRAN_LIST);
+
+      fillSelectOptions('t3-select-pentaksiran', PENTAKSIRAN_LIST);
+      fillSelectOptions('t3-select-aliran', getAliranList().map(a => ({ value: a, text: `Tahun ${a} / Aliran ${a}` })));
+
+      fillSelectOptions('t4-select-pentaksiran', PENTAKSIRAN_LIST);
+      fillSelectOptions('t4-select-aliran', getAliranList().map(a => ({ value: a, text: `Tahun ${a} / Aliran ${a}` })));
+
+      fillSelectOptions('t5-select-kelas', KELAS_LIST);
+      fillSelectOptions('t5-select-pentaksiran', PENTAKSIRAN_LIST);
+      fillSelectOptions('parent-select-pentaksiran', PENTAKSIRAN_LIST);
+    }
+
+    function fillSelectOptions(elementId, array, placeholder = '') {
+      const select = document.getElementById(elementId);
+      if (!select) return;
+      select.innerHTML = '';
+      if (placeholder) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = placeholder;
+        select.appendChild(option);
+      }
+      array.forEach(item => {
+        const option = document.createElement('option');
+        if (typeof item === 'object') {
+          option.value = item.value;
+          option.textContent = item.text;
+        } else {
+          option.value = item;
+          option.textContent = item;
+        }
+        select.appendChild(option);
+      });
+    }
+
+    function updateNamaMuridDropdown() {
+      const kelas = document.getElementById('t1-select-kelas').value;
+      const muridKelas = STUDENTS.filter(s => s.kelas === kelas).sort((a, b) => a.nama.localeCompare(b.nama));
+      const options = [{ value: 'SEMUA', text: 'Semua Murid' }, ...muridKelas.map(s => ({ value: s.id, text: s.nama }))];
+      fillSelectOptions('t1-select-nama', options);
+    }
+
+    function updateSubjekDropdown(pentaksiranSelectId, subjekSelectId) {
+      const select = document.getElementById(subjekSelectId);
+      const pilihanSebelum = select ? select.value : '';
+      const pentaksiran = document.getElementById(pentaksiranSelectId).value;
+      const subjects = getSubjectsForPentaksiran(pentaksiran);
+      fillSelectOptions(subjekSelectId, subjects);
+
+      // Kekalkan pilihan subjek sebelum ini jika masih wujud selepas dropdown dijana semula.
+      if (select && pilihanSebelum && subjects.includes(pilihanSebelum)) {
+        select.value = pilihanSebelum;
+      }
+    }
+
+    // ==========================================
+    // LOGIN
+    // ==========================================
+    function setLoginMode(mode) {
+      CURRENT_LOGIN_MODE = mode;
+      const tabGuru = document.getElementById('tab-login-guru');
+      const tabIbubapa = document.getElementById('tab-login-ibubapa');
+      const inputGuru = document.getElementById('input-guru-container');
+      const inputIbubapa = document.getElementById('input-ibubapa-container');
+      const errorAlert = document.getElementById('login-error-alert');
+      if (errorAlert) errorAlert.classList.add('hidden');
+
+      if (!tabGuru || !tabIbubapa || !inputGuru || !inputIbubapa) return;
+
+      if (mode === 'guru') {
+        tabGuru.className = 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-2';
+        tabIbubapa.className = 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800 flex items-center justify-center gap-2';
+        inputGuru.classList.remove('hidden');
+        inputIbubapa.classList.add('hidden');
+      } else {
+        tabGuru.className = 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800 flex items-center justify-center gap-2';
+        tabIbubapa.className = 'flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-2';
+        inputGuru.classList.add('hidden');
+        inputIbubapa.classList.remove('hidden');
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const errorAlert = document.getElementById('login-error-alert');
+      const errorText = document.getElementById('login-error-text');
+      errorAlert.classList.add('hidden');
+
+      if (CURRENT_LOGIN_MODE === 'guru') {
+        const password = document.getElementById('password-guru').value;
+        if (password === GURU_PASSWORD) {
+          CURRENT_USER = { role: 'GURU', name: 'Guru Kelas KAFA' };
+          setupDashboardView();
+          showToast('Log masuk guru berjaya!', 'success');
+        } else {
+          errorText.innerText = 'Katalaluan guru salah.';
+          errorAlert.classList.remove('hidden');
+        }
+      } else {
+        const cleanedIc = normalizeIC(document.getElementById('ic-anak').value);
+        if (!cleanedIc) {
+          errorText.innerText = 'Sila masukkan nombor Kad Pengenalan anak anda.';
+          errorAlert.classList.remove('hidden');
+          return;
+        }
+        const child = STUDENTS.find(s => s.ic === cleanedIc);
+        if (child) {
+          CURRENT_USER = { role: 'IBUBAPA', child };
+          setupParentPortalView();
+          showToast(`Log masuk berjaya untuk ${child.nama}`, 'success');
+        } else {
+          errorText.innerText = 'No kad pengenalan tidak dijumpai dalam rekod. Sila hubungi guru.';
+          errorAlert.classList.remove('hidden');
+        }
+      }
+    }
+
+    function logout() {
+      CURRENT_USER = null;
+      const password = document.getElementById('password-guru');
+      const icInput = document.getElementById('ic-anak');
+      if (password) password.value = '';
+      if (icInput) icInput.value = '';
+      document.getElementById('login-portal').classList.remove('hidden');
+      document.getElementById('guru-dashboard').classList.add('hidden');
+      document.getElementById('ibubapa-portal').classList.add('hidden');
+      document.getElementById('user-status-indicator').classList.add('hidden');
+    }
+
+    function setupDashboardView() {
+      document.getElementById('login-portal').classList.add('hidden');
+      document.getElementById('guru-dashboard').classList.remove('hidden');
+      document.getElementById('ibubapa-portal').classList.add('hidden');
+      document.getElementById('user-status-indicator').classList.remove('hidden');
+      document.getElementById('user-role-badge').innerText = 'GURU';
+      document.getElementById('user-role-badge').className = 'px-2 py-0.5 bg-emerald-500 text-white font-bold rounded text-2xs uppercase';
+      document.getElementById('user-display-name').innerText = 'GURU SEKOLAH AGAMA SERI TAMAN KLUANG BARAT';
+      switchTab(1);
+    }
+
+    function setupParentPortalView() {
+      document.getElementById('login-portal').classList.add('hidden');
+      document.getElementById('guru-dashboard').classList.add('hidden');
+      document.getElementById('ibubapa-portal').classList.remove('hidden');
+      document.getElementById('user-status-indicator').classList.remove('hidden');
+      document.getElementById('user-role-badge').innerText = 'IBU BAPA';
+      document.getElementById('user-role-badge').className = 'px-2 py-0.5 bg-blue-500 text-white font-bold rounded text-2xs uppercase';
+      document.getElementById('user-display-name').innerText = CURRENT_USER.child.nama;
+      renderParentSlip();
+    }
+
+    function switchTab(tabIndex) {
+      CURRENT_ACTIVE_TAB = tabIndex;
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`nav-tab-${i}`);
+        const panel = document.getElementById(`panel-tab-${i}`);
+        if (i === tabIndex) {
+          btn.className = 'tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md';
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = 'tab-btn flex-1 min-w-[150px] py-2.5 px-3 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50';
+          panel.classList.add('hidden');
+        }
+      }
+      if (tabIndex === 1) renderInputMarkahTable();
+      if (tabIndex === 2) renderAnalisisIndividu();
+      if (tabIndex === 3) renderAnalisisSubjek();
+      if (tabIndex === 4) renderKedudukanMurid();
+      if (tabIndex === 5) renderPelaporanSlip();
+    }
+
+    // ==========================================
+    // GRED DAN TAFSIRAN
+    // ==========================================
+    function calculateGredAndTafsiran(scoreValue) {
+      const normalizedScore = normalizeMarkahValue(scoreValue);
+      if (normalizedScore === 'TD') return { gred: 'TD', tafsiran: 'Tidak Daftar' };
+      if (normalizedScore === 'TH') return { gred: 'TH', tafsiran: 'Tidak Hadir' };
+
+      const score = typeof normalizedScore === 'number' ? normalizedScore : Number.NaN;
+      if (!Number.isFinite(score) || score < 0) return { gred: '', tafsiran: '' };
+      if (score >= 85 && score <= 100) return { gred: 'A', tafsiran: 'Cemerlang' };
+      if (score >= 70 && score < 85) return { gred: 'B', tafsiran: 'Sangat Baik' };
+      if (score >= 55 && score < 70) return { gred: 'C', tafsiran: 'Baik' };
+      if (score >= 40 && score < 55) return { gred: 'D', tafsiran: 'Sederhana' };
+      if (score >= 0 && score < 40) return { gred: 'E', tafsiran: 'Gagal' };
+      return { gred: '', tafsiran: '' };
+    }
+
+    function getGredBadgeStyle(gred) {
+      switch (gred) {
+        case 'A': return 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold';
+        case 'B': return 'bg-blue-100 text-blue-800 border border-blue-300 font-bold';
+        case 'C': return 'bg-yellow-100 text-yellow-800 border border-yellow-300 font-bold';
+        case 'D': return 'bg-orange-100 text-orange-800 border border-orange-300 font-bold';
+        case 'E': return 'bg-rose-100 text-rose-800 border border-rose-300 font-bold';
+        case 'TD': return 'bg-red-600 text-white font-bold';
+        case 'TH': return 'bg-amber-500 text-white font-bold';
+        default: return 'bg-slate-100 text-slate-800';
+      }
+    }
+
+    function isNumericMark(record) {
+      if (!record) return false;
+      const value = normalizeMarkahValue(record.markah);
+      return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
+    }
+
+    // ==========================================
+    // TAB 1: INPUT MARKAH
+    // ==========================================
+    function renderInputMarkahTable() {
+      const kelas = document.getElementById('t1-select-kelas').value;
+      const selectedStudentId = document.getElementById('t1-select-nama').value || 'SEMUA';
+      const pentaksiran = document.getElementById('t1-select-pentaksiran').value;
+      const subjek = document.getElementById('t1-select-subjek').value;
+      const tbody = document.getElementById('t1-table-body');
+      tbody.innerHTML = '';
+
+      if (!kelas || !pentaksiran || !subjek) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Sila pilih kelas, murid, pentaksiran dan mata pelajaran.</td></tr>`;
+        return;
+      }
+
+      let filteredStudents = STUDENTS.filter(s => s.kelas === kelas).sort((a, b) => a.nama.localeCompare(b.nama));
+      if (selectedStudentId !== 'SEMUA') filteredStudents = filteredStudents.filter(s => s.id === selectedStudentId);
+
+      if (!filteredStudents.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Tiada murid dijumpai bagi pilihan ini.</td></tr>`;
+        return;
+      }
+
+      filteredStudents.forEach((student, index) => {
+        const record = getRecord(student, pentaksiran, subjek) || { markah: '', gred: '', tafsiran: '' };
+        const isSpecial = record.markah === 'TD' || record.markah === 'TH';
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-center font-semibold text-slate-500">${index + 1}</td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-slate-800">${escapeHtml(student.nama)}</div>
+            <div class="text-2xs text-slate-400">IC: ${student.ic}</div>
+          </td>
+          <td class="py-3 px-4">
+            <div class="flex items-center justify-center gap-2">
+              <input type="number" id="markah-${student.id}" value="${isSpecial ? '' : escapeHtml(record.markah)}" min="0" max="100" ${isSpecial ? 'disabled' : ''} oninput="onScoreInputChange('${student.id}')" placeholder="0 - 100" class="w-24 text-center bg-white border border-slate-300 rounded-lg py-1.5 px-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none" />
+              <button type="button" onclick="markSpecialStatus('${student.id}', 'TD')" id="btn-td-${student.id}" class="px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all ${record.markah === 'TD' ? 'bg-red-600 text-white border border-red-600' : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'}">TD</button>
+              <button type="button" onclick="markSpecialStatus('${student.id}', 'TH')" id="btn-th-${student.id}" class="px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all ${record.markah === 'TH' ? 'bg-amber-500 text-white border border-amber-500' : 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200'}">TH</button>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center font-extrabold text-sm text-slate-800"><span id="gred-${student.id}" class="px-2.5 py-1 rounded-md text-xs tracking-wider ${getGredBadgeStyle(record.gred)}">${record.gred || '-'}</span></td>
+          <td class="py-3 px-4 text-xs font-semibold text-slate-500" id="tafsiran-${student.id}">${record.tafsiran || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function onScoreInputChange(studentId) {
+      const input = document.getElementById(`markah-${studentId}`);
+      let scoreVal = input.value;
+      if (scoreVal !== '') {
+        let scoreInt = parseInt(scoreVal, 10);
+        if (scoreInt > 100) { scoreInt = 100; input.value = 100; }
+        if (scoreInt < 0) { scoreInt = 0; input.value = 0; }
+        scoreVal = scoreInt;
+      }
+      const calculated = calculateGredAndTafsiran(scoreVal);
+      const gredSpan = document.getElementById(`gred-${studentId}`);
+      gredSpan.className = `px-2.5 py-1 rounded-md text-xs tracking-wider ${getGredBadgeStyle(calculated.gred)}`;
+      gredSpan.innerText = calculated.gred || '-';
+      document.getElementById(`tafsiran-${studentId}`).innerText = calculated.tafsiran || '-';
+
+      document.getElementById(`btn-td-${studentId}`).className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-red-50 text-red-600 hover:bg-red-100 border border-red-200';
+      document.getElementById(`btn-th-${studentId}`).className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200';
+      input.disabled = false;
+    }
+
+    function markSpecialStatus(studentId, status) {
+      const input = document.getElementById(`markah-${studentId}`);
+      const btnTd = document.getElementById(`btn-td-${studentId}`);
+      const btnTh = document.getElementById(`btn-th-${studentId}`);
+      const gredSpan = document.getElementById(`gred-${studentId}`);
+      const tafsiranSpan = document.getElementById(`tafsiran-${studentId}`);
+      const isAlreadyStatus = (status === 'TD' && btnTd.classList.contains('bg-red-600')) || (status === 'TH' && btnTh.classList.contains('bg-amber-500'));
+
+      if (isAlreadyStatus) {
+        input.disabled = false;
+        input.value = '';
+        btnTd.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-red-50 text-red-600 hover:bg-red-100 border border-red-200';
+        btnTh.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200';
+        gredSpan.innerText = '-';
+        gredSpan.className = 'px-2.5 py-1 rounded-md text-xs tracking-wider bg-slate-100 text-slate-800';
+        tafsiranSpan.innerText = '-';
+        return;
+      }
+
+      input.disabled = true;
+      input.value = '';
+      const calculated = calculateGredAndTafsiran(status);
+      if (status === 'TD') {
+        btnTd.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-red-600 text-white border border-red-600';
+        btnTh.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200';
+      } else {
+        btnTd.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-red-50 text-red-600 hover:bg-red-100 border border-red-200';
+        btnTh.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all bg-amber-500 text-white border border-amber-500';
+      }
+      gredSpan.innerText = calculated.gred;
+      gredSpan.className = `px-2.5 py-1 rounded-md text-xs tracking-wider ${getGredBadgeStyle(calculated.gred)}`;
+      tafsiranSpan.innerText = calculated.tafsiran;
+    }
+
+    async function saveMarkah() {
+      const kelas = document.getElementById('t1-select-kelas').value;
+      const selectedStudentId = document.getElementById('t1-select-nama').value || 'SEMUA';
+      const pentaksiran = document.getElementById('t1-select-pentaksiran').value;
+      const subjek = document.getElementById('t1-select-subjek').value;
+      let studentsToSave = STUDENTS.filter(s => s.kelas === kelas);
+      if (selectedStudentId !== 'SEMUA') studentsToSave = studentsToSave.filter(s => s.id === selectedStudentId);
+
+      if (!studentsToSave.length || !pentaksiran || !subjek) {
+        showToast('Sila lengkapkan pilihan sebelum simpan.', 'error');
+        return;
+      }
+
+      const recordsToSave = [];
+      const deleteKeys = [];
+
+      studentsToSave.forEach(student => {
+        const input = document.getElementById(`markah-${student.id}`);
+        const btnTd = document.getElementById(`btn-td-${student.id}`);
+        const btnTh = document.getElementById(`btn-th-${student.id}`);
+        if (!input || !btnTd || !btnTh) return;
+
+        let scoreValue = '';
+        if (btnTd.classList.contains('bg-red-600')) scoreValue = 'TD';
+        else if (btnTh.classList.contains('bg-amber-500')) scoreValue = 'TH';
+        else scoreValue = input.value === '' ? '' : parseFloat(input.value);
+
+        const key = getRecordKey(student.id, pentaksiran, subjek);
+
+        if (scoreValue === '') {
+          deleteRecord(student, pentaksiran, subjek);
+          deleteKeys.push(key);
+        } else {
+          setRecord(student, pentaksiran, subjek, scoreValue);
+          recordsToSave.push(MARKAH_DATABASE[key]);
+        }
+      });
+
+      persistMarkahToLocalStorage();
+
+      if (APPS_SCRIPT_URL) {
+        try {
+          showToast('Sedang menyimpan markah ke Google Sheet...', 'info');
+          await postToAppsScript({
+            action: 'saveMarkah',
+            records: recordsToSave,
+            deleteKeys
+          });
+          showToast('Markah berjaya disimpan ke Google Sheet.', 'success');
+        } catch (error) {
+          console.error(error);
+          showToast('Markah disimpan dalam pelayar sahaja. Gagal simpan ke Google Sheet.', 'error');
+        }
+      } else {
+        showToast('Markah berjaya disimpan dalam pelayar.', 'success');
+      }
+
+      renderInputMarkahTable();
+    }
+
+    // ==========================================
+    // ANALYSIS ENGINE
+    // ==========================================
+    function buildStudentAnalysis(student, pentaksiran, subjects) {
+      let totalScore = 0;
+      let countedSubjects = 0;
+      const subjectRecords = {};
+
+      subjects.forEach(subjek => {
+        const record = getRecord(student, pentaksiran, subjek);
+        subjectRecords[subjek] = record;
+        if (isNumericMark(record)) {
+          const numericMark = normalizeMarkahValue(record.markah);
+          totalScore += numericMark;
+          countedSubjects++;
+        }
+      });
+
+      const average = countedSubjects > 0 ? totalScore / countedSubjects : 0;
+      const overall = countedSubjects > 0 ? calculateGredAndTafsiran(average) : { gred: '-', tafsiran: '-' };
+      return { student, totalScore, countedSubjects, average, overallGred: overall.gred, subjectRecords };
+    }
+
+    function getRankedAnalyses(students, pentaksiran, subjects) {
+      return students.map(student => buildStudentAnalysis(student, pentaksiran, subjects)).sort((a, b) => {
+        if (b.average !== a.average) return b.average - a.average;
+        if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+        return a.student.nama.localeCompare(b.student.nama);
+      });
+    }
+
+    // ==========================================
+    // TAB 2: ANALISIS INDIVIDU - COLUMN SUBJEK M/G
+    // ==========================================
+    function renderAnalisisIndividu() {
+      const kelas = document.getElementById('t2-select-kelas').value;
+      const pentaksiran = document.getElementById('t2-select-pentaksiran').value;
+      const subjects = getSubjectsForPentaksiran(pentaksiran);
+      const classStudents = STUDENTS.filter(s => s.kelas === kelas).sort((a, b) => a.nama.localeCompare(b.nama));
+      const analysesList = getRankedAnalyses(classStudents, pentaksiran, subjects);
+
+      document.getElementById('t2-print-meta').innerText = `Kelas: ${kelas || '-'} | Pentaksiran: ${pentaksiran || '-'} | Tarikh Cetak: ${formatDateTime(new Date())}`;
+      renderAnalisisIndividuHeader(subjects);
+      renderAnalisisIndividuBody(analysesList, subjects);
+      renderMuridTerbaikBySubjek(classStudents, pentaksiran, subjects);
+    }
+
+    function renderAnalisisIndividuHeader(subjects) {
+      const thead = document.getElementById('t2-table-head');
+      const subjectMainHeaders = subjects.map(subjek => `<th colspan="2" class="py-2.5 px-2 border border-slate-200 bg-emerald-50 text-emerald-800 min-w-[110px]">${escapeHtml(shortSubjekName(subjek))}</th>`).join('');
+      const subjectSubHeaders = subjects.map(() => `<th class="py-2 px-2 border border-slate-200 bg-slate-50 w-14">M</th><th class="py-2 px-2 border border-slate-200 bg-slate-50 w-14">G</th>`).join('');
+
+      thead.innerHTML = `
+        <tr>
+          <th rowspan="2" class="py-2.5 px-2 border border-slate-200 text-center w-14">Ked.</th>
+          <th rowspan="2" class="py-2.5 px-3 border border-slate-200 text-left min-w-[220px]">Nama Murid</th>
+          <th rowspan="2" class="py-2.5 px-3 border border-slate-200 text-center min-w-[100px]">Kelas</th>
+          ${subjectMainHeaders}
+          <th rowspan="2" class="py-2.5 px-2 border border-slate-200 text-center min-w-[90px]">Jum. Markah</th>
+          <th rowspan="2" class="py-2.5 px-2 border border-slate-200 text-center min-w-[80px]">Purata</th>
+          <th rowspan="2" class="py-2.5 px-2 border border-slate-200 text-center min-w-[90px]">Gred Purata</th>
+        </tr>
+        <tr>${subjectSubHeaders}</tr>
+      `;
+    }
+
+    function renderAnalisisIndividuBody(analysesList, subjects) {
+      const tbody = document.getElementById('t2-table-body');
+      tbody.innerHTML = '';
+
+      if (!analysesList.length) {
+        tbody.innerHTML = `<tr><td colspan="${3 + (subjects.length * 2) + 3}" class="py-4 text-center text-slate-400">Tiada rekod murid dijumpai.</td></tr>`;
+        return;
+      }
+
+      analysesList.forEach((item, index) => {
+        const subjectCells = subjects.map(subjek => {
+          const record = item.subjectRecords[subjek];
+          const markah = record ? record.markah : '-';
+          const gred = record ? record.gred : '-';
+          return `
+            <td class="py-2.5 px-2 border border-slate-200 text-center font-semibold ${record && record.gred === 'E' ? 'text-rose-700' : 'text-slate-700'}">${markah}</td>
+            <td class="py-2.5 px-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded text-2xs ${getGredBadgeStyle(gred)}">${gred}</span></td>
+          `;
+        }).join('');
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-2 border border-slate-200 text-center font-bold text-slate-700">${index + 1}</td>
+          <td class="py-2.5 px-3 border border-slate-200 text-left">
+            <div class="font-bold text-slate-800">${escapeHtml(item.student.nama)}</div>
+            <div class="text-2xs text-slate-400">IC: ${item.student.ic}</div>
+          </td>
+          <td class="py-2.5 px-3 border border-slate-200 text-center font-semibold text-slate-600">${escapeHtml(item.student.kelas)}</td>
+          ${subjectCells}
+          <td class="py-2.5 px-2 border border-slate-200 text-center font-bold text-emerald-700">${item.totalScore}</td>
+          <td class="py-2.5 px-2 border border-slate-200 text-center font-bold text-slate-800">${item.countedSubjects ? item.average.toFixed(1) : '-'}</td>
+          <td class="py-2.5 px-2 border border-slate-200 text-center"><span class="px-2.5 py-1 rounded-md text-xs font-bold tracking-wider ${getGredBadgeStyle(item.overallGred)}">${item.overallGred}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMuridTerbaikBySubjek(classStudents, pentaksiran, subjects) {
+      const tbody = document.getElementById('t2-terbaik-body');
+      tbody.innerHTML = '';
+
+      subjects.forEach((subjek, subIdx) => {
+        let maxMark = -1;
+        let bestStudents = [];
+        classStudents.forEach(student => {
+          const record = getRecord(student, pentaksiran, subjek);
+          if (isNumericMark(record)) {
+            const currentMark = normalizeMarkahValue(record.markah);
+            if (currentMark > maxMark) {
+              maxMark = currentMark;
+              bestStudents = [{ student, record }];
+            } else if (currentMark === maxMark) {
+              bestStudents.push({ student, record });
+            }
+          }
+        });
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        if (!bestStudents.length) {
+          tr.innerHTML = `<td class="py-3 px-3 text-center font-semibold text-slate-400">${subIdx + 1}</td><td class="py-3 px-3 font-semibold text-slate-800">${escapeHtml(subjek)}</td><td colspan="4" class="py-3 px-3 text-slate-400 text-xs italic">Tiada markah direkodkan.</td>`;
+        } else {
+          const names = bestStudents.map(bs => escapeHtml(bs.student.nama)).join('<br>');
+          const gred = bestStudents[0].record.gred;
+          const tafsiran = bestStudents[0].record.tafsiran;
+          tr.innerHTML = `
+            <td class="py-3 px-3 text-center font-bold text-slate-500">${subIdx + 1}</td>
+            <td class="py-3 px-3 font-bold text-slate-800">${escapeHtml(subjek)}</td>
+            <td class="py-3 px-3 font-semibold text-emerald-800 text-xs leading-relaxed">${names}</td>
+            <td class="py-3 px-3 text-center font-bold text-slate-800">${maxMark}</td>
+            <td class="py-3 px-3 text-center"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${getGredBadgeStyle(gred)}">${gred}</span></td>
+            <td class="py-3 px-3 text-xs font-semibold text-slate-600">${tafsiran}</td>
+          `;
+        }
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ==========================================
+    // TAB 3: ANALISIS SUBJEK
+    // ==========================================
+    function renderAnalisisSubjek() {
+      const pentaksiran = document.getElementById('t3-select-pentaksiran').value;
+      const aliran = document.getElementById('t3-select-aliran').value;
+      const subjects = getSubjectsForPentaksiran(pentaksiran);
+      const students = STUDENTS.filter(s => getAliranFromKelas(s.kelas) === aliran);
+      const tbody = document.getElementById('t3-table-body');
+      const chart = document.getElementById('t3-chart-container');
+      tbody.innerHTML = '';
+      chart.innerHTML = '';
+
+      document.getElementById('t3-print-meta').innerText = `Pentaksiran: ${pentaksiran || '-'} | Aliran: Tahun ${aliran || '-'} | Tarikh Cetak: ${formatDateTime(new Date())}`;
+
+      subjects.forEach((subjek, index) => {
+        const stats = getSubjectStats(students, pentaksiran, subjek);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition text-center';
+        tr.innerHTML = `
+          <td class="py-2 px-2 border border-slate-200 font-bold">${index + 1}</td>
+          <td class="py-2 px-3 border border-slate-200 text-left font-semibold">${escapeHtml(subjek)}</td>
+          <td class="py-2 px-1 border border-slate-200">${stats.daftar}</td>
+          <td class="py-2 px-1 border border-slate-200">${stats.ambil}</td>
+          <td class="py-2 px-1 border border-slate-200">${stats.TH}</td>
+          ${['A','B','C','D','E'].map(g => `<td class="py-2 px-1 border border-slate-200 font-bold">${stats[g]}</td><td class="py-2 px-1 border border-slate-200">${percent(stats[g], stats.ambil)}</td>`).join('')}
+          <td class="py-2 px-1 border border-slate-200 font-bold text-emerald-700">${stats.lulus}</td>
+          <td class="py-2 px-1 border border-slate-200 font-bold text-rose-700">${stats.tidakMemuaskan}</td>
+        `;
+        tbody.appendChild(tr);
+
+        chart.innerHTML += renderSimpleGradeChart(subjek, stats);
+      });
+    }
+
+    function getSubjectStats(students, pentaksiran, subjek) {
+      const stats = { daftar: students.length, ambil: 0, TH: 0, TD: 0, A: 0, B: 0, C: 0, D: 0, E: 0, lulus: 0, tidakMemuaskan: 0 };
+      students.forEach(student => {
+        const record = getRecord(student, pentaksiran, subjek);
+        if (!record) return;
+        if (record.markah === 'TH') { stats.TH++; return; }
+        if (record.markah === 'TD') { stats.TD++; return; }
+        if (isNumericMark(record)) {
+          stats.ambil++;
+          if (stats[record.gred] !== undefined) stats[record.gred]++;
+          if (['A', 'B', 'C', 'D'].includes(record.gred)) stats.lulus++;
+          if (record.gred === 'E') stats.tidakMemuaskan++;
+        }
+      });
+      return stats;
+    }
+
+    function renderSimpleGradeChart(subjek, stats) {
+      const rawMax = Math.max(stats.A, stats.B, stats.C, stats.D, stats.E, 1);
+      const maxAxis = rawMax <= 5 ? 5 : Math.ceil(rawMax / 5) * 5;
+      const midAxis = Math.round(maxAxis / 2);
+      const colorMap = {
+        A: '#10b981',
+        B: '#3b82f6',
+        C: '#f59e0b',
+        D: '#f97316',
+        E: '#ef4444'
+      };
+      const bars = ['A', 'B', 'C', 'D', 'E'].map(g => {
+        const height = stats[g] > 0 ? Math.max((stats[g] / maxAxis) * 145, 10) : 2;
+        return `
+          <div class="vertical-bar-wrap" title="Gred ${g}: ${stats[g]} murid">
+            <div class="vertical-bar-value">${stats[g]}</div>
+            <div class="vertical-bar" style="height:${height}px; background:${colorMap[g]};"></div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="vertical-chart-card">
+          <div class="vertical-chart-title">${escapeHtml(shortSubjekName(subjek))}</div>
+          <div class="grade-chart-shell" aria-label="Carta palang taburan gred bagi ${escapeHtml(subjek)}">
+            <div class="grade-chart-y-title">Bil. Murid</div>
+            <div class="grade-chart-y-axis">
+              <span>${maxAxis}</span>
+              <span>${midAxis}</span>
+              <span>0</span>
+            </div>
+            <div class="grade-chart-plot">
+              ${bars}
+            </div>
+            <div class="grade-chart-x-axis">
+              <span style="color:#10b981">A</span>
+              <span style="color:#3b82f6">B</span>
+              <span style="color:#f59e0b">C</span>
+              <span style="color:#f97316">D</span>
+              <span style="color:#ef4444">E</span>
+            </div>
+          </div>
+          <div class="mt-2 flex justify-between text-[10px] font-semibold text-slate-400 px-10">
+            <span>Paksi Y: Bilangan murid</span>
+            <span>Paksi X: Gred</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function percent(value, total) {
+      if (!total) return '0.0%';
+      return ((value / total) * 100).toFixed(1) + '%';
+    }
+
+    // ==========================================
+    // TAB 4: KEDUDUKAN MURID
+    // ==========================================
+    function renderKedudukanMurid() {
+      const pentaksiran = document.getElementById('t4-select-pentaksiran').value;
+      const aliran = document.getElementById('t4-select-aliran').value;
+      const subjects = getSubjectsForPentaksiran(pentaksiran);
+      const students = STUDENTS.filter(s => getAliranFromKelas(s.kelas) === aliran);
+      const analyses = getRankedAnalyses(students, pentaksiran, subjects).filter(a => a.countedSubjects > 0);
+      const tbody = document.getElementById('t4-table-body');
+      tbody.innerHTML = '';
+      document.getElementById('t4-print-meta').innerText = `Pentaksiran: ${pentaksiran || '-'} | Aliran: Tahun ${aliran || '-'} | Tarikh Cetak: ${formatDateTime(new Date())}`;
+
+      if (!analyses.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400">Tiada rekod markah untuk pilihan ini.</td></tr>`;
+        return;
+      }
+
+      analyses.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-center font-bold text-slate-700">${index + 1}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(item.student.nama)}</td>
+          <td class="py-3 px-4 text-center font-semibold text-slate-600">${escapeHtml(item.student.kelas)}</td>
+          <td class="py-3 px-4 text-center font-bold text-emerald-700">${item.totalScore}</td>
+          <td class="py-3 px-4 text-center font-bold text-slate-800">${item.average.toFixed(1)}</td>
+          <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${getGredBadgeStyle(item.overallGred)}">${item.overallGred}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ==========================================
+    // TAB 5 & PARENT SLIP
+    // ==========================================
+    function renderPelaporanSlip() {
+      const kelas = document.getElementById('t5-select-kelas').value;
+      const pentaksiran = document.getElementById('t5-select-pentaksiran').value;
+      const students = STUDENTS.filter(s => s.kelas === kelas).sort((a, b) => a.nama.localeCompare(b.nama));
+      const container = document.getElementById('t5-slips-container');
+      container.innerHTML = students.map(student => buildSlipHtml(student, pentaksiran, true)).join('');
+      if (!students.length) container.innerHTML = `<div class="py-8 text-center text-slate-400">Tiada murid dalam kelas ini.</div>`;
+    }
+
+    function renderParentSlip() {
+      const student = CURRENT_USER?.child;
+      const pentaksiran = document.getElementById('parent-select-pentaksiran').value || PENTAKSIRAN_LIST[0];
+      const container = document.getElementById('parent-slip-container');
+      if (!student) return;
+      container.innerHTML = buildSlipHtml(student, pentaksiran, false);
+    }
+
+    function getStudentRankInfo(student, pentaksiran, subjects) {
+      const classStudents = STUDENTS.filter(s => s.kelas === student.kelas);
+      const ranked = getRankedAnalyses(classStudents, pentaksiran, subjects).filter(item => item.countedSubjects > 0);
+      const position = ranked.findIndex(item => item.student.id === student.id);
+      return {
+        kedudukan: position >= 0 ? position + 1 : '-',
+        jumlahMurid: ranked.length || classStudents.length || '-'
+      };
+    }
+
+    function getOverallDecision(analysis) {
+      if (!analysis || !analysis.countedSubjects) return 'TIADA MARKAH';
+      if (['A', 'B', 'C', 'D'].includes(analysis.overallGred)) return 'LULUS';
+      if (analysis.overallGred === 'E') return 'GAGAL';
+      return 'TIADA MARKAH';
+    }
+
+    function generateUlasanGuru(analysis) {
+      if (!analysis || !analysis.countedSubjects) {
+        return 'Ulasan belum dapat dijana kerana tiada markah direkodkan untuk murid ini.';
+      }
+
+      const purata = analysis.average.toFixed(1);
+      const gred = analysis.overallGred;
+
+      if (gred === 'A') {
+        return `Tahniah. Murid menunjukkan pencapaian cemerlang dengan purata ${purata}. Kekalkan usaha, disiplin belajar dan teruskan kecemerlangan dalam semua mata pelajaran.`;
+      }
+      if (gred === 'B') {
+        return `Pencapaian murid berada pada tahap sangat baik dengan purata ${purata}. Murid digalakkan meneruskan usaha dan membuat ulang kaji berfokus untuk meningkatkan pencapaian ke tahap cemerlang.`;
+      }
+      if (gred === 'C') {
+        return `Pencapaian murid berada pada tahap baik dengan purata ${purata}. Murid perlu lebih konsisten membuat latihan, bertanya guru apabila tidak faham dan memperkukuh mata pelajaran yang masih lemah.`;
+      }
+      if (gred === 'D') {
+        return `Pencapaian murid berada pada tahap sederhana dengan purata ${purata}. Murid digalakkan meningkatkan latihan dan ulang kaji. Bimbingan berterusan, latihan tambahan dan sokongan ibu bapa amat digalakkan.`;
+      }
+      if (gred === 'E') return `Pencapaian murid belum mencapai tahap lulus dengan purata ${purata}. Bimbingan, ulang kaji dan sokongan penjaga amat digalakkan.`;
+      return 'Teruskan usaha dan tingkatkan pencapaian dari semasa ke semasa.';
+    }
+
+    function buildSlipHtml(student, pentaksiran, withPageBreak) {
+      const subjects = getSubjectsForPentaksiran(pentaksiran);
+      const analysis = buildStudentAnalysis(student, pentaksiran, subjects);
+      const rankInfo = getStudentRankInfo(student, pentaksiran, subjects);
+      const keputusan = getOverallDecision(analysis);
+      const ulasanGuru = generateUlasanGuru(analysis);
+      const rows = subjects.map((subjek, index) => {
+        const record = analysis.subjectRecords[subjek];
+        return `
+          <tr>
+            <td class="py-2 px-3 border border-slate-300 text-center">${index + 1}</td>
+            <td class="py-2 px-3 border border-slate-300 font-semibold">${escapeHtml(subjek)}</td>
+            <td class="py-2 px-3 border border-slate-300 text-center font-bold">${record ? record.markah : '-'}</td>
+            <td class="py-2 px-3 border border-slate-300 text-center font-bold">${record ? record.gred : '-'}</td>
+            <td class="py-2 px-3 border border-slate-300">${record ? record.tafsiran : '-'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="${withPageBreak ? 'slip-page' : ''} bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+          <div class="border-b-2 border-slate-800 pb-4 mb-4 flex items-center justify-center gap-4 text-center">
+            <img src="${LOGO_URL}" alt="Logo Sekolah" class="print-logo w-20 h-20" />
+            <div>
+              <h1 class="text-xl font-extrabold text-slate-900">SEKOLAH AGAMA SERI TAMAN KLUANG BARAT</h1>
+              <h2 class="text-base font-bold text-slate-800">SLIP KEPUTUSAN PEPERIKSAAN KAFA</h2>
+              <p class="text-xs text-slate-500">${escapeHtml(pentaksiran || '-')}</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto mb-4">
+            <table class="slip-info-table w-full text-sm border border-slate-300">
+              <tbody>
+                <tr class="bg-slate-50">
+                  <td class="w-1/3">
+                    <span class="slip-info-label">Nama Murid</span>
+                    <span class="slip-info-value">${escapeHtml(student.nama)}</span>
+                  </td>
+                  <td class="w-1/3">
+                    <span class="slip-info-label">No. Kad Pengenalan</span>
+                    <span class="slip-info-value">${student.ic || '-'}</span>
+                  </td>
+                  <td class="w-1/3">
+                    <span class="slip-info-label">Kelas</span>
+                    <span class="slip-info-value">${escapeHtml(student.kelas)}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border border-slate-300">
+              <thead class="bg-slate-100 uppercase text-xs">
+                <tr>
+                  <th class="py-2 px-3 border border-slate-300 text-center">Bil</th>
+                  <th class="py-2 px-3 border border-slate-300">Mata Pelajaran</th>
+                  <th class="py-2 px-3 border border-slate-300 text-center">Markah</th>
+                  <th class="py-2 px-3 border border-slate-300 text-center">Gred</th>
+                  <th class="py-2 px-3 border border-slate-300">Tafsiran</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+
+          <div class="mt-5">
+            <h3 class="text-sm font-extrabold text-slate-800 uppercase mb-2">Maklumat Pencapaian</h3>
+            <div class="overflow-x-auto">
+              <table class="achievement-table w-full text-sm text-left border border-slate-300">
+                <tbody>
+                  <tr class="bg-slate-50">
+                    <th class="text-slate-700 w-1/3">Bilangan Mata Pelajaran</th>
+                    <td class="font-bold text-slate-900">${analysis.countedSubjects} / ${subjects.length}</td>
+                    <th class="text-slate-700 w-1/3">Jumlah Markah</th>
+                    <td class="font-bold text-emerald-700">${analysis.totalScore}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-slate-700">Purata Markah</th>
+                    <td class="font-bold text-slate-900">${analysis.countedSubjects ? analysis.average.toFixed(1) : '-'}</td>
+                    <th class="text-slate-700">Kedudukan</th>
+                    <td class="font-bold text-slate-900">${rankInfo.kedudukan}${rankInfo.kedudukan !== '-' ? ' / ' + rankInfo.jumlahMurid : ''}</td>
+                  </tr>
+                  <tr class="bg-slate-50">
+                    <th class="text-slate-700">Keputusan</th>
+                    <td class="font-extrabold ${keputusan === 'LULUS' ? 'text-emerald-700' : keputusan === 'GAGAL' ? 'text-rose-700' : 'text-slate-700'}">${keputusan}</td>
+                    <th class="text-slate-700">Gred Keseluruhan</th>
+                    <td class="font-extrabold text-slate-900">${analysis.overallGred}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-sm font-extrabold text-slate-800 uppercase mb-2">Ulasan Guru</h3>
+            <div class="teacher-comment-box text-sm leading-relaxed text-slate-700">
+              ${escapeHtml(ulasanGuru)}
+            </div>
+          </div>
+
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs text-slate-500">
+            <div class="pt-8 border-t border-slate-300 text-center">Tandatangan Guru</div>
+            <div class="pt-8 border-t border-slate-300 text-center">Tandatangan Ibu Bapa / Penjaga</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // PRINT & UTILITIES
+    // ==========================================
+    function printContent() {
+      let printArea = null;
+      if (!document.getElementById('ibubapa-portal').classList.contains('hidden')) {
+        printArea = document.querySelector('#ibubapa-portal .print-content');
+      } else {
+        printArea = document.querySelector(`#panel-tab-${CURRENT_ACTIVE_TAB} .print-content`);
+      }
+
+      if (!printArea || !printArea.innerHTML.trim()) {
+        showToast('Tiada kandungan untuk dicetak.', 'error');
+        return;
+      }
+
+      const printWindow = window.open('', '_blank', 'width=1100,height=800');
+      if (!printWindow) {
+        showToast('Popup cetakan disekat. Sila benarkan popup untuk sistem ini.', 'error');
+        window.print();
+        return;
+      }
+
+      const pageTitle = 'Cetakan Sistem Analisis Peperiksaan KAFA';
+      printWindow.document.open();
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="ms">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>${pageTitle}</title>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+            * { box-sizing: border-box; }
+            body { font-family: 'Inter', Arial, sans-serif; color: #0f172a; background: white; margin: 0; padding: 18px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #94a3b8; padding: 6px 7px; }
+            th { background: #f1f5f9; color: #0f172a; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .slip-page { page-break-after: always; break-after: page; }
+            .slip-page:last-child { page-break-after: auto; break-after: auto; }
+            .overflow-x-auto { overflow: visible !important; }
+            .rounded-2xl, .rounded-xl, .rounded-lg { border-radius: 0 !important; }
+            .shadow-sm, .shadow, .shadow-lg { box-shadow: none !important; }
+            .print-logo, .school-logo { object-fit: contain; }
+            .vertical-chart-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #e2e8f0; padding: 12px; margin-bottom: 12px; }
+            .vertical-chart-title { font-size: 12px; font-weight: 800; text-align: center; margin-bottom: 8px; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+            .grade-chart-shell { display: grid; grid-template-columns: 38px 1fr; grid-template-rows: 160px 22px; column-gap: 6px; row-gap: 3px; }
+            .grade-chart-y-axis { grid-row: 1; grid-column: 1; height: 160px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 4px; font-size: 9px; font-weight: 700; color: #64748b; }
+            .grade-chart-plot { grid-row: 1; grid-column: 2; height: 160px; position: relative; display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; padding: 8px 8px 0; border-left: 2px solid #64748b; border-bottom: 2px solid #64748b; background: repeating-linear-gradient(to top, #ffffff 0, #ffffff 30px, #f1f5f9 31px); }
+            .grade-chart-x-axis { grid-row: 2; grid-column: 2; display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; font-size: 10px; font-weight: 900; color: #334155; }
+            .grade-chart-y-title { display: none; }
+            .vertical-bar-wrap { height: 132px; min-width: 32px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; }
+            .vertical-bar-value { font-size: 10px; font-weight: 900; color: #0f172a; }
+            .vertical-bar { width: 26px; min-height: 2px; border-radius: 6px 6px 0 0; }
+            .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+            .achievement-table th, .achievement-table td { border: 1px solid #cbd5e1; padding: 6px 7px; }
+            .teacher-comment-box { border: 1px solid #cbd5e1; border-left: 5px solid #10b981; padding: 10px; margin-top: 12px; }
+            @media print {
+              body { padding: 0; }
+              @page { size: A4; margin: 10mm; }
+            }
+          </style>
+        </head>
+        <body>
+          ${printArea.innerHTML}
+          <script>
+            window.onload = function() {
+              setTimeout(function() { window.focus(); window.print(); }, 500);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast-notif');
+      const toastIcon = document.getElementById('toast-icon');
+      const toastMessage = document.getElementById('toast-message');
+      if (!toast) return;
+      const iconMap = {
+        success: '<i class="fa-solid fa-circle-check"></i>',
+        error: '<i class="fa-solid fa-circle-exclamation"></i>',
+        info: '<i class="fa-solid fa-circle-info"></i>'
+      };
+      const colorMap = { success: 'text-emerald-400', error: 'text-red-400', info: 'text-blue-400' };
+      toastIcon.className = `${colorMap[type] || colorMap.info} text-lg`;
+      toastIcon.innerHTML = iconMap[type] || iconMap.info;
+      toastMessage.innerText = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      clearTimeout(TOAST_TIMER);
+      TOAST_TIMER = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatDateTime(date) {
+      const d = new Date(date);
+      const pad = n => String(n).padStart(2, '0');
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+  </script>
+</body>
+</html>
